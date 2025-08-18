@@ -78,9 +78,7 @@
             <option value="">All tags</option>
           </select>
         </div>
-        <div class="grid" id="insightsGrid">
-          <!-- Cards injected here -->
-        </div>
+        <div class="grid" id="insightsGrid"></div>
       </div>
     </section>
 
@@ -95,9 +93,7 @@
             <option value="">All tags</option>
           </select>
         </div>
-        <div class="grid" id="portfolioGrid">
-          <!-- Cards injected here -->
-        </div>
+        <div class="grid" id="portfolioGrid"></div>
       </div>
     </section>
 
@@ -135,17 +131,12 @@
     // ==============================
     // CONFIG — EDIT ONLY THESE LINES
     // ==============================
-    const SPREADSHEET_ID = "1vSSBPFyOrNjznNqhZUtMRH5cAvNaEi2ITyptUCa69a5sfLp15zBSOa6eMLtOPMKmkvpOwxpJowH6THt"; // e.g. 1AbCdEf... from the Sheet URL
-    const SHEET_INSIGHTS = "Insights";  // tab name for insights
-    const SHEET_PORTFOLIO = "Portfolio"; // tab name for portfolio
-
-    // (Optional) limit items shown; set to null for all
+    const SPREADSHEET_ID = "1vSSBPFyOrNjznNqhZUtMRH5cAvNaEi2ITyptUCa69a5sfLp15zBSOa6eMLtOPMKmkvpOwxpJowH6THt";
+    const SHEET_INSIGHTS = "Insights";
+    const SHEET_PORTFOLIO = "Portfolio";
     const LIMIT_INSIGHTS = 12;
     const LIMIT_PORTFOLIO = 12;
 
-    // ==============================
-    // UTILITIES
-    // ==============================
     const yearEl = document.getElementById('year');
     yearEl.textContent = new Date().getFullYear();
     const statusBox = document.getElementById('statusBox');
@@ -154,7 +145,6 @@
     function setStatus(msg){ if(statusBox) statusBox.textContent = msg; }
 
     function gvizUrl(sheetName){
-      // Uses Google's gviz endpoint for published sheets
       return `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
     }
 
@@ -162,8 +152,10 @@
       const url = gvizUrl(sheetName);
       const res = await fetch(url);
       const text = await res.text();
-      // Trim the JS wrapper returned by gviz
-      const json = JSON.parse(text.substring(47).slice(0,-2));
+      // --- FIXED: safer JSON extraction ---
+      const match = text.match(/google\.visualization\.Query\.setResponse\((.*)\)/);
+      if (!match) throw new Error("Failed to parse Google Sheets JSON.");
+      const json = JSON.parse(match[1]);
       const rows = json.table.rows.map(r => (r.c||[]).map(c => c? c.v : ""));
       const headers = json.table.cols.map(c => c.label || "");
       return { headers, rows };
@@ -204,9 +196,6 @@
       gridEl.innerHTML = filtered.map(createCard).join("") || `<div class="notice">No items found.</div>`;
     }
 
-    // ==============================
-    // BOOTSTRAP
-    // ==============================
     let INSIGHTS_DATA = [];
     let PORTFOLIO_DATA = [];
 
@@ -235,16 +224,14 @@
           date: o.Date
         }));
 
-        INSIGHTS_DATA = (LIMIT_INSIGHTS? ins.slice(0, LIMIT_INSIGHTS): ins);
-        PORTFOLIO_DATA = (LIMIT_PORTFOLIO? port.slice(0, LIMIT_PORTFOLIO): port);
+        INSIGHTS_DATA = (LIMIT_INSIGHTS ? ins.slice(0, LIMIT_INSIGHTS) : ins);
+        PORTFOLIO_DATA = (LIMIT_PORTFOLIO ? port.slice(0, LIMIT_PORTFOLIO) : port);
 
-        // Populate filters
         populateSelect(document.getElementById('insightsTag'), INSIGHTS_DATA.map(x=>x.tag));
         populateSelect(document.getElementById('portfolioTag'), PORTFOLIO_DATA.map(x=>x.tag));
 
-        // Initial render
-        filterAndRender(INSIGHTS_DATA, {q: '', tag: ''}, document.getElementById('insightsGrid'));
-        filterAndRender(PORTFOLIO_DATA, {q: '', tag: ''}, document.getElementById('portfolioGrid'));
+        filterAndRender(INSIGHTS_DATA, {q:'', tag:''}, document.getElementById('insightsGrid'));
+        filterAndRender(PORTFOLIO_DATA, {q:'', tag:''}, document.getElementById('portfolioGrid'));
 
         setStatus('Connected ✔ — content is live from Google Sheets.');
       }catch(err){
@@ -253,25 +240,23 @@
       }
     }
 
-    // Event wiring
-    document.getElementById('insightsSearch').addEventListener('input', (e)=>{
+    document.getElementById('insightsSearch').addEventListener('input', e=>{
       filterAndRender(INSIGHTS_DATA, { q: e.target.value, tag: document.getElementById('insightsTag').value }, document.getElementById('insightsGrid'));
     });
-    document.getElementById('insightsTag').addEventListener('change', (e)=>{
+    document.getElementById('insightsTag').addEventListener('change', e=>{
       filterAndRender(INSIGHTS_DATA, { q: document.getElementById('insightsSearch').value, tag: e.target.value }, document.getElementById('insightsGrid'));
     });
-
-    document.getElementById('portfolioSearch').addEventListener('input', (e)=>{
+    document.getElementById('portfolioSearch').addEventListener('input', e=>{
       filterAndRender(PORTFOLIO_DATA, { q: e.target.value, tag: document.getElementById('portfolioTag').value }, document.getElementById('portfolioGrid'));
     });
-    document.getElementById('portfolioTag').addEventListener('change', (e)=>{
+    document.getElementById('portfolioTag').addEventListener('change', e=>{
       filterAndRender(PORTFOLIO_DATA, { q: document.getElementById('portfolioSearch').value, tag: e.target.value }, document.getElementById('portfolioGrid'));
     });
 
     refreshBtn.addEventListener('click', loadAll);
 
-    // Kickoff
     loadAll();
   </script>
 </body>
 </html>
+
