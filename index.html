@@ -165,22 +165,46 @@
       return rows.map(r => Object.fromEntries(headers.map((h,i)=>[h.trim(), r[i] ?? ""])));
     }
 
-    function createCard({img,title,desc,tag,url,date}){
-      const safeImg = img || "https://images.unsplash.com/photo-1454165205744-3b78555e5572?q=80&w=1200&auto=format&fit=crop";
-      return `
-        <article class="card">
-          <img class="thumb" loading="lazy" src="${safeImg}" alt="${title||''}">
-          <div class="pad">
-            ${tag? `<span class="badge">${tag}</span>`: ''}
-            <h3 style="margin:10px 0 6px">${title||''}</h3>
-            <p class="muted">${desc||''}</p>
-            <div class="flex" style="justify-content:space-between;margin-top:10px">
-              ${url? `<a class="btn" href="${url}" target="_blank" rel="noopener">Open</a>` : `<span></span>`}
-              ${date? `<span class="muted" style="font-size:.85rem">${new Date(date).toLocaleDateString()}</span>`: ''}
-            </div>
-          </div>
-        </article>`;
+   function createCard({img, title, desc, tag, url, date}) {
+  const safeImg = img || "https://images.unsplash.com/photo-1454165205744-3b78555e5572?q=80&w=1200&auto=format&fit=crop";
+
+  let mediaContent = `<img class="thumb" loading="lazy" src="${safeImg}" alt="${title || ''}">`;
+
+  if (url) {
+    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+    const driveMatch = url.match(/https:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)\/view/);
+    const mp4Match = url.match(/\.mp4(\?.*)?$/i); // Detect direct MP4 links
+
+    if (ytMatch) {
+      const ytID = ytMatch[1];
+      mediaContent = `<iframe class="thumb" src="https://www.youtube.com/embed/${ytID}" frameborder="0" allowfullscreen></iframe>`;
+    } else if (driveMatch) {
+      const driveID = driveMatch[1];
+      mediaContent = `<iframe class="thumb" src="https://drive.google.com/file/d/${driveID}/preview" frameborder="0" allowfullscreen></iframe>`;
+    } else if (mp4Match) {
+      mediaContent = `
+        <video class="thumb" controls>
+          <source src="${url}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>`;
     }
+  }
+
+  return `
+    <article class="card">
+      ${mediaContent}
+      <div class="pad">
+        ${tag ? `<span class="badge">${tag}</span>` : ''}
+        <h3 style="margin:10px 0 6px">${title || ''}</h3>
+        <p class="muted">${desc || ''}</p>
+        <div class="flex" style="justify-content:space-between;margin-top:10px">
+          ${url && !mediaContent.includes('<iframe') && !mediaContent.includes('<video') ? `<a class="btn" href="${url}" target="_blank" rel="noopener">Open</a>` : `<span></span>`}
+          ${date ? `<span class="muted" style="font-size:.85rem">${new Date(date).toLocaleDateString()}</span>` : ''}
+        </div>
+      </div>
+    </article>`;
+}
+
 
     function populateSelect(selectEl, items){
       const unique = Array.from(new Set(items.filter(Boolean))).sort();
