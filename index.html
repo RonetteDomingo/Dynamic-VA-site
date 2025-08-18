@@ -108,11 +108,11 @@
         <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
           <div class="card"><div class="pad">
             <h3 style="margin:0 0 8px;color:var(--bronze)">Insights – Columns</h3>
-            <pre style="white-space:pre-wrap;color:#e6d7c2">Title | Excerpt | Tag | ImageURL | DirectImageURL | ReadMoreURL | DirectProjectURL | Date</pre>
+            <pre style="white-space:pre-wrap;color:#e6d7c2">Title | Excerpt | Tag | ImageURL | ReadMoreURL | Date</pre>
           </div></div>
           <div class="card"><div class="pad">
             <h3 style="margin:0 0 8px;color:var(--bronze)">Portfolio – Columns</h3>
-            <pre style="white-space:pre-wrap;color:#e6d7c2">Title | Description | Tag | ImageURL | DirectImageURL | ProjectURL | DirectProjectURL | Date</pre>
+            <pre style="white-space:pre-wrap;color:#e6d7c2">Title | Description | Tag | ImageURL | ProjectURL | Date</pre>
           </div></div>
         </div>
         <p class="lead">Then go to <strong>File → Share → Publish to web</strong> (Entire doc). Copy the Spreadsheet ID and paste it below in the <code>SPREADSHEET_ID</code> variable. That’s it.</p>
@@ -129,7 +129,7 @@
 
   <script>
     // ==============================
-    // CONFIG
+    // CONFIG — EDIT ONLY THESE LINES
     // ==============================
     const SPREADSHEET_ID = "1xZV6iDwOR87zOZr8qwCMiMejuzsj-VeRmXZD1TRQxEA";
     const SHEET_INSIGHTS = "Insights";
@@ -164,24 +164,34 @@
       return rows.map(r => Object.fromEntries(headers.map((h,i)=>[h.trim(), r[i] ?? ""])));
     }
 
-    function createCard({img, title, desc, tag, url, directUrl, date}) {
-      const mediaUrl = directUrl || url;
-      let mediaContent = `<img class="thumb" loading="lazy" src="${img}" alt="${title || ''}">`;
+    function normalizeDriveURL(url){
+      if(!url) return url;
+      // Image or video file from Drive share link
+      let idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+      if(idMatch){
+        return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
+      }
+      return url;
+    }
+
+    function createCard({img, title, desc, tag, url}) {
+      const mediaUrl = normalizeDriveURL(url) || normalizeDriveURL(img);
+      let mediaContent = `<img class="thumb" loading="lazy" src="${normalizeDriveURL(img)}" alt="${title || ''}">`;
 
       if(mediaUrl){
         const ytMatch = mediaUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-        const driveMatch = mediaUrl.match(/https:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)\/view/);
         const mp4Match = mediaUrl.match(/\.mp4(\?.*)?$/i);
+        const driveMatch = mediaUrl.match(/https:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
 
         if(ytMatch){
           const ytID = ytMatch[1];
           mediaContent = `<iframe class="thumb" src="https://www.youtube.com/embed/${ytID}" frameborder="0" allowfullscreen></iframe>`;
-        } else if(driveMatch){
-          const driveID = driveMatch[1];
-          mediaContent = `<iframe class="thumb" src="https://drive.google.com/file/d/${driveID}/preview" frameborder="0" allowfullscreen></iframe>`;
-        } else if(mp4Match){
+        }else if(mp4Match){
           mediaContent = `<video class="thumb" controls><source src="${mediaUrl}" type="video/mp4">Your browser does not support the video tag.</video>`;
-        } else if(mediaUrl.match(/\.(jpg|jpeg|png|webp)$/i)){
+        }else if(driveMatch){
+          // Treat as preview video for Drive file if not mp4
+          mediaContent = `<iframe class="thumb" src="https://drive.google.com/file/d/${driveMatch[1]}/preview" frameborder="0" allowfullscreen></iframe>`;
+        }else if(mediaUrl.match(/\.(jpe?g|png|webp)$/i)){
           mediaContent = `<img class="thumb" loading="lazy" src="${mediaUrl}" alt="${title || ''}">`;
         }
       }
@@ -195,7 +205,6 @@
             <p class="muted">${desc || ''}</p>
             <div class="flex" style="justify-content:space-between;margin-top:10px">
               ${(!mediaContent.includes('<iframe') && !mediaContent.includes('<video') && mediaUrl) ? `<a class="btn" href="${mediaUrl}" target="_blank" rel="noopener">Open</a>` : `<span></span>`}
-              ${date ? `<span class="muted" style="font-size:.85rem">${new Date(date).toLocaleDateString()}</span>` : ''}
             </div>
           </div>
         </article>`;
@@ -218,64 +227,60 @@
     let INSIGHTS_DATA = [];
     let PORTFOLIO_DATA = [];
 
-    async function loadAll() {
-      try {
+    async function loadAll(){
+      try{
         setStatus('Loading content…');
         const [insRaw, portRaw] = await Promise.all([
           fetchSheet(SHEET_INSIGHTS),
           fetchSheet(SHEET_PORTFOLIO)
         ]);
 
-        const ins = toObjects(insRaw).map(o => ({
+        INSIGHTS_DATA = toObjects(insRaw).map(o=>({
           title: o.Title,
           desc: o.Excerpt,
           tag: o.Tag,
-          img: o.DirectImageURL || o.ImageURL,
+          img: o.ImageURL,
           url: o.ReadMoreURL,
-          directUrl: o.DirectProjectURL,
           date: o.Date
         }));
 
-        const port = toObjects(portRaw).map(o => ({
+        PORTFOLIO_DATA = toObjects(portRaw).map(o=>({
           title: o.Title,
           desc: o.Description,
           tag: o.Tag,
-          img: o.DirectImageURL || o.ImageURL,
+          img: o.ImageURL,
           url: o.ProjectURL,
-          directUrl: o.DirectProjectURL,
           date: o.Date
         }));
 
-        INSIGHTS_DATA = (LIMIT_INSIGHTS ? ins.slice(0, LIMIT_INSIGHTS) : ins);
-        PORTFOLIO_DATA = (LIMIT_PORTFOLIO ? port.slice(0, LIMIT_PORTFOLIO) : port);
-
-        populateSelect(document.getElementById('insightsTag'), INSIGHTS_DATA.map(x => x.tag));
-        populateSelect(document.getElementById('portfolioTag'), PORTFOLIO_DATA.map(x => x.tag));
+        populateSelect(document.getElementById('insightsTag'), INSIGHTS_DATA.map(x=>x.tag));
+        populateSelect(document.getElementById('portfolioTag'), PORTFOLIO_DATA.map(x=>x.tag));
 
         filterAndRender(INSIGHTS_DATA, {q:'', tag:''}, document.getElementById('insightsGrid'));
         filterAndRender(PORTFOLIO_DATA, {q:'', tag:''}, document.getElementById('portfolioGrid'));
 
         setStatus('Connected ✔ — content is live from Google Sheets.');
-      } catch(err) {
+      }catch(err){
         console.error(err);
         setStatus('Failed to load from Google Sheets. Check that the spreadsheet is published and the ID is correct.');
       }
     }
 
+    refreshBtn.addEventListener('click', loadAll);
     document.getElementById('insightsSearch').addEventListener('input', e=>{
-      filterAndRender(INSIGHTS_DATA, { q: e.target.value, tag: document.getElementById('insightsTag').value }, document.getElementById('insightsGrid'));
+      filterAndRender(INSIGHTS_DATA, {q:e.target.value, tag:document.getElementById('insightsTag').value}, document.getElementById('insightsGrid'));
     });
     document.getElementById('insightsTag').addEventListener('change', e=>{
-      filterAndRender(INSIGHTS_DATA, { q: document.getElementById('insightsSearch').value, tag: e.target.value }, document.getElementById('insightsGrid'));
+      filterAndRender(INSIGHTS_DATA, {q:document.getElementById('insightsSearch').value, tag:e.target.value}, document.getElementById('insightsGrid'));
     });
     document.getElementById('portfolioSearch').addEventListener('input', e=>{
-      filterAndRender(PORTFOLIO_DATA, { q: e.target.value, tag: document.getElementById('portfolioTag').value }, document.getElementById('portfolioGrid'));
+      filterAndRender(PORTFOLIO_DATA, {q:e.target.value, tag:document.getElementById('portfolioTag').value}, document.getElementById('portfolioGrid'));
     });
     document.getElementById('portfolioTag').addEventListener('change', e=>{
-      filterAndRender(PORTFOLIO_DATA, { q: document.getElementById('portfolioSearch').value, tag: e.target.value }, document.getElementById('portfolioGrid'));
+      filterAndRender(PORTFOLIO_DATA, {q:document.getElementById('portfolioSearch').value, tag:e.target.value}, document.getElementById('portfolioGrid'));
     });
-    refreshBtn.addEventListener('click', loadAll);
 
+    // Initial load
     loadAll();
   </script>
 </body>
