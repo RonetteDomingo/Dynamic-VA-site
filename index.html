@@ -1,287 +1,275 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>S‑Class VA – Dynamic Site (Google Sheets CMS)</title>
-  <meta name="description" content="Dynamic VA portfolio with Insights blog and Portfolio items powered by Google Sheets (no-code updates)." />
-  <style>
-    :root{
-      --white:#ffffff;
-      --gold:#C1914D;
-      --bronze:#A16A27;
-      --deep-brown:#78420B;
-      --dark:#120B08;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--dark);color:var(--white);}
-    a{color:var(--gold)}
-    header{position:sticky;top:0;background:rgba(18,11,8,.8);backdrop-filter:saturate(180%) blur(8px);border-bottom:1px solid #2a1a13;z-index:20}
-    .wrap{max-width:1100px;margin:0 auto;padding:18px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--bronze));}
-    .brand h1{font-size:1.05rem;margin:0;color:var(--gold);letter-spacing:.5px}
-    nav{display:flex;gap:16px;align-items:center}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
-    section{padding:48px 18px;border-top:1px solid #2a1a13}
-    h2{margin:0 0 14px;font-size:1.6rem;color:var(--gold)}
-    p.lead{color:#d5c9bc;margin:0 0 18px}
-    .card{background:#1c120f;border:1px solid #2a1a13;border-radius:16px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.25)}
-    .card .thumb{width:100%;aspect-ratio:16/9;object-fit:cover;background:#2a1a13}
-    .card .pad{padding:14px}
-    .badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:.75rem;border:1px solid var(--bronze);color:var(--gold);}
-    .muted{color:#cab39a}
-    .btn{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--dark);font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
-    .btn:disabled{opacity:.6;cursor:not-allowed}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 18px}
-    input[type="search"],select{background:#1c120f;border:1px solid #2a1a13;color:#f6efe7;border-radius:10px;padding:10px}
-    footer{padding:40px 18px;border-top:1px solid #2a1a13;color:#bda78f}
-    .notice{background:#24160f;border:1px dashed var(--deep-brown);padding:12px 14px;border-radius:12px;color:#e9dccb}
-    .flex{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S‑Class VA – Dynamic Site (Google Sheets CMS)</title>
+<meta name="description" content="Dynamic VA portfolio with Insights blog and Portfolio items powered by Google Sheets (no-code updates).">
+<style>
+:root{
+  --white:#ffffff; --gold:#C1914D; --bronze:#A16A27; --deep-brown:#78420B; --dark:#120B08;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--dark);color:var(--white);}
+a{color:var(--gold)}
+header{position:sticky;top:0;background:rgba(18,11,8,.8);backdrop-filter:saturate(180%) blur(8px);border-bottom:1px solid #2a1a13;z-index:20}
+.wrap{max-width:1100px;margin:0 auto;padding:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--bronze));}
+.brand h1{font-size:1.05rem;margin:0;color:var(--gold);letter-spacing:.5px}
+nav{display:flex;gap:16px;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+section{padding:48px 18px;border-top:1px solid #2a1a13}
+h2{margin:0 0 14px;font-size:1.6rem;color:var(--gold)}
+p.lead{color:#d5c9bc;margin:0 0 18px}
+.card{background:#1c120f;border:1px solid #2a1a13;border-radius:16px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.25)}
+.card .thumb{width:100%;aspect-ratio:16/9;object-fit:cover;background:#2a1a13}
+.card .pad{padding:14px}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:.75rem;border:1px solid var(--bronze);color:var(--gold);}
+.muted{color:#cab39a}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--dark);font-weight:700;border:none;border-radius:12px;padding:10px 14px;cursor:pointer}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 18px}
+input[type="search"],select{background:#1c120f;border:1px solid #2a1a13;color:#f6efe7;border-radius:10px;padding:10px}
+footer{padding:40px 18px;border-top:1px solid #2a1a13;color:#bda78f}
+.notice{background:#24160f;border:1px dashed var(--deep-brown);padding:12px 14px;border-radius:12px;color:#e9dccb}
+.flex{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+</style>
 </head>
 <body>
-  <header>
-    <div class="wrap flex" style="justify-content:space-between">
-      <div class="brand"><div class="logo"></div><h1>S‑Class VA – Dynamic</h1></div>
-      <nav>
-        <a href="#insights">Insights</a>
-        <a href="#portfolio">Portfolio</a>
-        <a href="#how-to">How to Update</a>
-      </nav>
+<header>
+  <div class="wrap flex" style="justify-content:space-between">
+    <div class="brand"><div class="logo"></div><h1>S‑Class VA – Dynamic</h1></div>
+    <nav>
+      <a href="#insights">Insights</a>
+      <a href="#portfolio">Portfolio</a>
+      <a href="#how-to">How to Update</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="wrap" id="hero" style="padding-top:28px">
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+  <div>
+    <h2>From Seafaring to S‑Class Virtual Assistance</h2>
+    <p class="lead">This demo is a <strong>clone-ready dynamic version</strong> of your site. Update <em>Insights</em> articles and <em>Portfolio</em> items from Google Sheets — no code edits needed.</p>
+    <div class="notice" id="statusBox">Connecting to Google Sheets…</div>
+    <div class="toolbar">
+      <button class="btn" id="refreshBtn">↻ Refresh Content</button>
     </div>
-  </header>
+  </div>
+  <div class="card"><img class="thumb" src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?q=80&w=1200&auto=format&fit=crop" alt="Workspace"/><div class="pad"><span class="badge">Live Preview</span><p class="muted">Brand colors applied • Responsive • Cards auto‑rendered from Sheets.</p></div></div>
+</div>
+</section>
 
-  <main>
-    <section class="wrap" id="hero" style="padding-top:28px">
-      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
-        <div>
-          <h2>From Seafaring to S‑Class Virtual Assistance</h2>
-          <p class="lead">This demo is a <strong>clone-ready dynamic version</strong> of your site. Update <em>Insights</em> articles and <em>Portfolio</em> items from Google Sheets — no code edits needed.</p>
-          <div class="notice" id="statusBox">Connecting to Google Sheets…</div>
-          <div class="toolbar">
-            <button class="btn" id="refreshBtn">↻ Refresh Content</button>
-          </div>
-        </div>
-        <div class="card"><img class="thumb" src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?q=80&w=1200&auto=format&fit=crop" alt="Workspace"/><div class="pad"><span class="badge">Live Preview</span><p class="muted">Brand colors applied • Responsive • Cards auto‑rendered from Sheets.</p></div></div>
+<section id="insights">
+<div class="wrap">
+<h2>Insights</h2>
+<p class="lead">Articles loaded from your Google Sheet <em>(sheet tab: Insights)</em>.</p>
+<div class="toolbar">
+<input type="search" id="insightsSearch" placeholder="Search articles…" />
+<select id="insightsTag">
+  <option value="">All tags</option>
+</select>
+</div>
+<div class="grid" id="insightsGrid"></div>
+</div>
+</section>
+
+<section id="portfolio">
+<div class="wrap">
+<h2>Portfolio</h2>
+<p class="lead">Projects loaded from your Google Sheet <em>(sheet tab: Portfolio)</em>.</p>
+<div class="toolbar">
+<input type="search" id="portfolioSearch" placeholder="Search projects…" />
+<select id="portfolioTag">
+  <option value="">All tags</option>
+</select>
+</div>
+<div class="grid" id="portfolioGrid"></div>
+</div>
+</section>
+
+<section id="how-to">
+<div class="wrap">
+<h2>How to Update (No Code)</h2>
+<ol class="lead">
+<li>Create a Google Spreadsheet with two tabs named <strong>Insights</strong> and <strong>Portfolio</strong>.</li>
+<li>For each tab, set columns exactly as below (row 1 = headers):</li>
+</ol>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+  <div class="card"><div class="pad">
+    <h3 style="margin:0 0 8px;color:var(--bronze)">Insights – Columns</h3>
+    <pre style="white-space:pre-wrap;color:#e6d7c2">Title | Excerpt | Tag | ImageURL | ReadMoreURL | Date</pre>
+  </div></div>
+  <div class="card"><div class="pad">
+    <h3 style="margin:0 0 8px;color:var(--bronze)">Portfolio – Columns</h3>
+    <pre style="white-space:pre-wrap;color:#e6d7c2">Title | Description | Tag | ImageURL | ProjectURL | Date</pre>
+  </div></div>
+</div>
+<p class="lead">Then go to <strong>File → Share → Publish to web</strong> (Entire doc). Copy the Spreadsheet ID and paste it below in the <code>SPREADSHEET_ID</code> variable. That’s it.</p>
+<div class="notice">Tip: Keep the sheet tidy. Each new row = 1 new card on the website.</div>
+</div>
+</section>
+</main>
+
+<footer>
+<div class="wrap">
+© <span id="year"></span> S‑Class VA • Dynamic demo. Built for cloning & rapid deployment.
+</div>
+</footer>
+
+<script>
+const SPREADSHEET_ID = "1xZV6iDwOR87zOZr8qwCMiMejuzsj-VeRmXZD1TRQxEA";
+const SHEET_INSIGHTS = "Insights";
+const SHEET_PORTFOLIO = "Portfolio";
+const LIMIT_INSIGHTS = 12;
+const LIMIT_PORTFOLIO = 12;
+
+const yearEl = document.getElementById('year');
+yearEl.textContent = new Date().getFullYear();
+const statusBox = document.getElementById('statusBox');
+const refreshBtn = document.getElementById('refreshBtn');
+
+function setStatus(msg){ if(statusBox) statusBox.textContent = msg; }
+
+function gvizUrl(sheetName){
+  return `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+}
+
+async function fetchSheet(sheetName){
+  const res = await fetch(gvizUrl(sheetName));
+  const text = await res.text();
+  const match = text.match(/google\.visualization\.Query\.setResponse\((.*)\)/);
+  if(!match) throw new Error("Failed to parse Google Sheets JSON.");
+  const json = JSON.parse(match[1]);
+  const rows = json.table.rows.map(r => (r.c||[]).map(c => c? c.v : ""));
+  const headers = json.table.cols.map(c => c.label || "");
+  return {headers, rows};
+}
+
+function toObjects({headers, rows}){
+  return rows.map(r => Object.fromEntries(headers.map((h,i)=>[h.trim(), r[i] ?? ""])));
+}
+
+function normalizeDriveURL(url){
+  if(!url) return "";
+  // Handle Drive links for images, videos, docs
+  const idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+  if(idMatch) return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
+  return url;
+}
+
+function createCard({img, url, title, desc, tag}){
+  const mediaUrl = normalizeDriveURL(img) || normalizeDriveURL(url);
+  let mediaContent = `<img class="thumb" loading="lazy" src="${normalizeDriveURL(img)}" alt="${title || ''}">`;
+
+  if(mediaUrl){
+    const ytMatch = mediaUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+    const mp4Match = mediaUrl.match(/\.mp4(\?.*)?$/i);
+    const pdfMatch = mediaUrl.match(/\.pdf$/i);
+    const driveMatch = mediaUrl.match(/https:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+
+    if(ytMatch){
+      const ytID = ytMatch[1];
+      mediaContent = `<iframe class="thumb" src="https://www.youtube.com/embed/${ytID}" frameborder="0" allowfullscreen></iframe>`;
+    } else if(mp4Match){
+      mediaContent = `<video class="thumb" controls><source src="${mediaUrl}" type="video/mp4">Your browser does not support the video tag.</video>`;
+    } else if(pdfMatch){
+      mediaContent = `<iframe class="thumb" src="${mediaUrl}" frameborder="0" allowfullscreen></iframe>`;
+    } else if(driveMatch){
+      mediaContent = `<iframe class="thumb" src="https://drive.google.com/file/d/${driveMatch[1]}/preview" frameborder="0" allowfullscreen></iframe>`;
+    } else if(mediaUrl.match(/\.(jpe?g|png|webp)$/i)){
+      mediaContent = `<img class="thumb" loading="lazy" src="${mediaUrl}" alt="${title || ''}">`;
+    }
+  }
+
+  return `
+  <article class="card">
+    ${mediaContent}
+    <div class="pad">
+      ${tag ? `<span class="badge">${tag}</span>` : ''}
+      <h3 style="margin:10px 0 6px">${title || ''}</h3>
+      <p class="muted">${desc || ''}</p>
+      <div class="flex" style="justify-content:space-between;margin-top:10px">
+        ${(!mediaContent.includes('<iframe') && !mediaContent.includes('<video') && mediaUrl) ? `<a class="btn" href="${mediaUrl}" target="_blank" rel="noopener">Open</a>` : `<span></span>`}
       </div>
-    </section>
-
-    <!-- INSIGHTS -->
-    <section id="insights">
-      <div class="wrap">
-        <h2>Insights</h2>
-        <p class="lead">Articles loaded from your Google Sheet <em>(sheet tab: Insights)</em>.</p>
-        <div class="toolbar">
-          <input type="search" id="insightsSearch" placeholder="Search articles…" />
-          <select id="insightsTag">
-            <option value="">All tags</option>
-          </select>
-        </div>
-        <div class="grid" id="insightsGrid"></div>
-      </div>
-    </section>
-
-    <!-- PORTFOLIO -->
-    <section id="portfolio">
-      <div class="wrap">
-        <h2>Portfolio</h2>
-        <p class="lead">Projects loaded from your Google Sheet <em>(sheet tab: Portfolio)</em>.</p>
-        <div class="toolbar">
-          <input type="search" id="portfolioSearch" placeholder="Search projects…" />
-          <select id="portfolioTag">
-            <option value="">All tags</option>
-          </select>
-        </div>
-        <div class="grid" id="portfolioGrid"></div>
-      </div>
-    </section>
-
-    <!-- HOW TO UPDATE -->
-    <section id="how-to">
-      <div class="wrap">
-        <h2>How to Update (No Code)</h2>
-        <ol class="lead">
-          <li>Create a Google Spreadsheet with two tabs named <strong>Insights</strong> and <strong>Portfolio</strong>.</li>
-          <li>For each tab, set columns exactly as below (row 1 = headers):</li>
-        </ol>
-        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
-          <div class="card"><div class="pad">
-            <h3 style="margin:0 0 8px;color:var(--bronze)">Insights – Columns</h3>
-            <pre style="white-space:pre-wrap;color:#e6d7c2">Title | Excerpt | Tag | ImageURL | ReadMoreURL | Date</pre>
-          </div></div>
-          <div class="card"><div class="pad">
-            <h3 style="margin:0 0 8px;color:var(--bronze)">Portfolio – Columns</h3>
-            <pre style="white-space:pre-wrap;color:#e6d7c2">Title | Description | Tag | ImageURL | ProjectURL | Date</pre>
-          </div></div>
-        </div>
-        <p class="lead">Then go to <strong>File → Share → Publish to web</strong> (Entire doc). Copy the Spreadsheet ID and paste it below in the <code>SPREADSHEET_ID</code> variable. That’s it.</p>
-        <div class="notice">Tip: Keep the sheet tidy. Each new row = 1 new card on the website.</div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="wrap">
-      © <span id="year"></span> S‑Class VA • Dynamic demo. Built for cloning & rapid deployment.
     </div>
-  </footer>
+  </article>`;
+}
 
-  <script>
-    // ==============================
-    // CONFIG — EDIT ONLY THESE LINES
-    // ==============================
-    const SPREADSHEET_ID = "1xZV6iDwOR87zOZr8qwCMiMejuzsj-VeRmXZD1TRQxEA";
-    const SHEET_INSIGHTS = "Insights";
-    const SHEET_PORTFOLIO = "Portfolio";
-    const LIMIT_INSIGHTS = 12;
-    const LIMIT_PORTFOLIO = 12;
+function populateSelect(selectEl, items){
+  const unique = Array.from(new Set(items.filter(Boolean))).sort();
+  selectEl.innerHTML = `<option value="">All tags</option>` + unique.map(t=>`<option value="${t}">${t}</option>`).join('');
+}
 
-    const yearEl = document.getElementById('year');
-    yearEl.textContent = new Date().getFullYear();
-    const statusBox = document.getElementById('statusBox');
-    const refreshBtn = document.getElementById('refreshBtn');
+function filterAndRender(data, {q, tag}, gridEl){
+  const query = (q||"").toLowerCase();
+  const filtered = data.filter(o =>
+    (!tag || (o.tag||"")===tag) &&
+    (!query || (o.title||"").toLowerCase().includes(query) || (o.desc||"").toLowerCase().includes(query))
+  );
+  gridEl.innerHTML = filtered.map(createCard).join("") || `<div class="notice">No items found.</div>`;
+}
 
-    function setStatus(msg){ if(statusBox) statusBox.textContent = msg; }
+let INSIGHTS_DATA = [];
+let PORTFOLIO_DATA = [];
 
-    function gvizUrl(sheetName){
-      return `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
-    }
+async function loadAll(){
+  try{
+    setStatus('Loading content…');
+    const [insRaw, portRaw] = await Promise.all([
+      fetchSheet(SHEET_INSIGHTS),
+      fetchSheet(SHEET_PORTFOLIO)
+    ]);
 
-    async function fetchSheet(sheetName){
-      const url = gvizUrl(sheetName);
-      const res = await fetch(url);
-      const text = await res.text();
-      const match = text.match(/google\.visualization\.Query\.setResponse\((.*)\)/);
-      if (!match) throw new Error("Failed to parse Google Sheets JSON.");
-      const json = JSON.parse(match[1]);
-      const rows = json.table.rows.map(r => (r.c||[]).map(c => c? c.v : ""));
-      const headers = json.table.cols.map(c => c.label || "");
-      return { headers, rows };
-    }
+    INSIGHTS_DATA = toObjects(insRaw).map(o=>({
+      title: o.Title,
+      desc: o.Excerpt,
+      tag: o.Tag,
+      img: o.ImageURL,
+      url: o.ReadMoreURL,
+      date: o.Date
+    }));
 
-    function toObjects({headers, rows}){
-      return rows.map(r => Object.fromEntries(headers.map((h,i)=>[h.trim(), r[i] ?? ""])));
-    }
+    PORTFOLIO_DATA = toObjects(portRaw).map(o=>({
+      title: o.Title,
+      desc: o.Description,
+      tag: o.Tag,
+      img: o.ImageURL,
+      url: o.ProjectURL,
+      date: o.Date
+    }));
 
-    function normalizeDriveURL(url){
-      if(!url) return url;
-      // Image or video file from Drive share link
-      let idMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
-      if(idMatch){
-        return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
-      }
-      return url;
-    }
+    populateSelect(document.getElementById('insightsTag'), INSIGHTS_DATA.map(x=>x.tag));
+    populateSelect(document.getElementById('portfolioTag'), PORTFOLIO_DATA.map(x=>x.tag));
 
-    function createCard({img, title, desc, tag, url}) {
-      const mediaUrl = normalizeDriveURL(url) || normalizeDriveURL(img);
-      let mediaContent = `<img class="thumb" loading="lazy" src="${normalizeDriveURL(img)}" alt="${title || ''}">`;
+    filterAndRender(INSIGHTS_DATA, {q:'', tag:''}, document.getElementById('insightsGrid'));
+    filterAndRender(PORTFOLIO_DATA, {q:'', tag:''}, document.getElementById('portfolioGrid'));
 
-      if(mediaUrl){
-        const ytMatch = mediaUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-        const mp4Match = mediaUrl.match(/\.mp4(\?.*)?$/i);
-        const driveMatch = mediaUrl.match(/https:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    setStatus('Connected ✔ — content is live from Google Sheets.');
+  } catch(err){
+    console.error(err);
+    setStatus('Failed to load from Google Sheets. Check that the spreadsheet is published and the ID is correct.');
+  }
+}
 
-        if(ytMatch){
-          const ytID = ytMatch[1];
-          mediaContent = `<iframe class="thumb" src="https://www.youtube.com/embed/${ytID}" frameborder="0" allowfullscreen></iframe>`;
-        }else if(mp4Match){
-          mediaContent = `<video class="thumb" controls><source src="${mediaUrl}" type="video/mp4">Your browser does not support the video tag.</video>`;
-        }else if(driveMatch){
-          // Treat as preview video for Drive file if not mp4
-          mediaContent = `<iframe class="thumb" src="https://drive.google.com/file/d/${driveMatch[1]}/preview" frameborder="0" allowfullscreen></iframe>`;
-        }else if(mediaUrl.match(/\.(jpe?g|png|webp)$/i)){
-          mediaContent = `<img class="thumb" loading="lazy" src="${mediaUrl}" alt="${title || ''}">`;
-        }
-      }
+refreshBtn.addEventListener('click', loadAll);
+document.getElementById('insightsSearch').addEventListener('input', e=>{
+  filterAndRender(INSIGHTS_DATA, {q:e.target.value, tag:document.getElementById('insightsTag').value}, document.getElementById('insightsGrid'));
+});
+document.getElementById('insightsTag').addEventListener('change', e=>{
+  filterAndRender(INSIGHTS_DATA, {q:document.getElementById('insightsSearch').value, tag:e.target.value}, document.getElementById('insightsGrid'));
+});
+document.getElementById('portfolioSearch').addEventListener('input', e=>{
+  filterAndRender(PORTFOLIO_DATA, {q:e.target.value, tag:document.getElementById('portfolioTag').value}, document.getElementById('portfolioGrid'));
+});
+document.getElementById('portfolioTag').addEventListener('change', e=>{
+  filterAndRender(PORTFOLIO_DATA, {q:document.getElementById('portfolioSearch').value, tag:e.target.value}, document.getElementById('portfolioGrid'));
+});
 
-      return `
-        <article class="card">
-          ${mediaContent}
-          <div class="pad">
-            ${tag ? `<span class="badge">${tag}</span>` : ''}
-            <h3 style="margin:10px 0 6px">${title || ''}</h3>
-            <p class="muted">${desc || ''}</p>
-            <div class="flex" style="justify-content:space-between;margin-top:10px">
-              ${(!mediaContent.includes('<iframe') && !mediaContent.includes('<video') && mediaUrl) ? `<a class="btn" href="${mediaUrl}" target="_blank" rel="noopener">Open</a>` : `<span></span>`}
-            </div>
-          </div>
-        </article>`;
-    }
-
-    function populateSelect(selectEl, items){
-      const unique = Array.from(new Set(items.filter(Boolean))).sort();
-      selectEl.innerHTML = `<option value="">All tags</option>` + unique.map(t=>`<option value="${t}">${t}</option>`).join('');
-    }
-
-    function filterAndRender(data, {q, tag}, gridEl){
-      const query = (q||"").toLowerCase();
-      const filtered = data.filter(o =>
-        (!tag || (o.tag||"")===tag) &&
-        (!query || (o.title||"").toLowerCase().includes(query) || (o.desc||"").toLowerCase().includes(query))
-      );
-      gridEl.innerHTML = filtered.map(createCard).join("") || `<div class="notice">No items found.</div>`;
-    }
-
-    let INSIGHTS_DATA = [];
-    let PORTFOLIO_DATA = [];
-
-    async function loadAll(){
-      try{
-        setStatus('Loading content…');
-        const [insRaw, portRaw] = await Promise.all([
-          fetchSheet(SHEET_INSIGHTS),
-          fetchSheet(SHEET_PORTFOLIO)
-        ]);
-
-        INSIGHTS_DATA = toObjects(insRaw).map(o=>({
-          title: o.Title,
-          desc: o.Excerpt,
-          tag: o.Tag,
-          img: o.ImageURL,
-          url: o.ReadMoreURL,
-          date: o.Date
-        }));
-
-        PORTFOLIO_DATA = toObjects(portRaw).map(o=>({
-          title: o.Title,
-          desc: o.Description,
-          tag: o.Tag,
-          img: o.ImageURL,
-          url: o.ProjectURL,
-          date: o.Date
-        }));
-
-        populateSelect(document.getElementById('insightsTag'), INSIGHTS_DATA.map(x=>x.tag));
-        populateSelect(document.getElementById('portfolioTag'), PORTFOLIO_DATA.map(x=>x.tag));
-
-        filterAndRender(INSIGHTS_DATA, {q:'', tag:''}, document.getElementById('insightsGrid'));
-        filterAndRender(PORTFOLIO_DATA, {q:'', tag:''}, document.getElementById('portfolioGrid'));
-
-        setStatus('Connected ✔ — content is live from Google Sheets.');
-      }catch(err){
-        console.error(err);
-        setStatus('Failed to load from Google Sheets. Check that the spreadsheet is published and the ID is correct.');
-      }
-    }
-
-    refreshBtn.addEventListener('click', loadAll);
-    document.getElementById('insightsSearch').addEventListener('input', e=>{
-      filterAndRender(INSIGHTS_DATA, {q:e.target.value, tag:document.getElementById('insightsTag').value}, document.getElementById('insightsGrid'));
-    });
-    document.getElementById('insightsTag').addEventListener('change', e=>{
-      filterAndRender(INSIGHTS_DATA, {q:document.getElementById('insightsSearch').value, tag:e.target.value}, document.getElementById('insightsGrid'));
-    });
-    document.getElementById('portfolioSearch').addEventListener('input', e=>{
-      filterAndRender(PORTFOLIO_DATA, {q:e.target.value, tag:document.getElementById('portfolioTag').value}, document.getElementById('portfolioGrid'));
-    });
-    document.getElementById('portfolioTag').addEventListener('change', e=>{
-      filterAndRender(PORTFOLIO_DATA, {q:document.getElementById('portfolioSearch').value, tag:e.target.value}, document.getElementById('portfolioGrid'));
-    });
-
-    // Initial load
-    loadAll();
-  </script>
+loadAll();
+</script>
 </body>
 </html>
