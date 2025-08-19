@@ -156,29 +156,33 @@ function toObjects({headers, rows}){
 function normalizeDriveURL(url) {
   if (!url) return url;
 
-  // Match Google Drive share links
-  const driveMatch = url.match(/(?:drive|docs)\.google\.com\/.*?\/d\/([a-zA-Z0-9_-]+)/);
+  // Match Google Drive file ID
+  const driveMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
   if (driveMatch) {
     const fileId = driveMatch[1];
-    const fileExtension = url.split('.').pop().toLowerCase();
 
-    // Determine the appropriate embed URL based on file type
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
+    // Check for YouTube links separately
+    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+
+    // Decide embed type based on known patterns
+    if (url.includes('/view') || url.includes('/preview')) {
+      // Assume general file (PDF, Doc, Video)
+      return `https://drive.google.com/file/d/${fileId}/preview`;
+    } else if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
       return `https://drive.google.com/uc?export=view&id=${fileId}`;
-    } else if (['mp4', 'mov', 'avi'].includes(fileExtension)) {
+    } else if (url.match(/\.(mp4|mov|avi)$/i)) {
       return `https://drive.google.com/file/d/${fileId}/preview`;
-    } else if (['pdf'].includes(fileExtension)) {
+    } else if (url.match(/\.(pdf|docx|doc)$/i)) {
       return `https://drive.google.com/file/d/${fileId}/preview`;
-    } else if (['docx', 'doc'].includes(fileExtension)) {
-      return `https://docs.google.com/document/d/${fileId}/preview`;
     } else {
+      // fallback: open in new tab
       return `https://drive.google.com/file/d/${fileId}/view`;
     }
   }
 
-  return url; // Return original URL if not a recognized Google Drive link
+  return url; // Return original if not a Drive link
 }
-
 
 function createCard({img, url, title, desc, tag}){
   const mediaUrl = normalizeDriveURL(img) || normalizeDriveURL(url);
