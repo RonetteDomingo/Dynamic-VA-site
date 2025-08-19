@@ -118,9 +118,18 @@ iframe.thumb, video.thumb{width:100%;aspect-ratio:16/9;border:none;border-radius
 </footer>
 
 <script>
+// === EDIT THIS: Replace with your own Google Spreadsheet ID ===
+// To find your Spreadsheet ID, open your Google Sheet and look at the URL:
+// https://docs.google.com/spreadsheets/d/THIS_IS_YOUR_SPREADSHEET_ID/edit#gid=0
 const SPREADSHEET_ID = "1xZV6iDwOR87zOZr8qwCMiMejuzsj-VeRmXZD1TRQxEA";
+
+// These are the tab (sheet) names inside your Google Spreadsheet.
+// Make sure your sheet tabs are exactly named like this or edit these variables.
 const SHEET_INSIGHTS = "Insights";
 const SHEET_PORTFOLIO = "Portfolio";
+
+/* The rest of the script fetches data from your spreadsheet based on
+   SPREADSHEET_ID and these sheet names, and renders your website content dynamically. */
 
 const yearEl = document.getElementById('year');
 yearEl.textContent = new Date().getFullYear();
