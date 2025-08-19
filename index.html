@@ -149,42 +149,26 @@ async function fetchSheet(sheetName){
   return {headers, rows};
 }
 
-function toObjects({headers, rows}){
-  return rows.map(r => Object.fromEntries(headers.map((h,i)=>[h.trim(), r[i] ?? ""])));
-}
-
 function normalizeDriveURL(url) {
   if (!url) return url;
 
-  // Match Google Drive file ID
+  // YouTube links
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+
+  // Google Drive links
   const driveMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
   if (driveMatch) {
     const fileId = driveMatch[1];
 
-    // Check for YouTube links separately
-    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
-
-    // Decide embed type based on known patterns
-    if (url.includes('/view') || url.includes('/preview')) {
-      // Assume general file (PDF, Doc, Video)
-      return `https://drive.google.com/file/d/${fileId}/preview`;
-    } else if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-      return `https://drive.google.com/uc?export=view&id=${fileId}`;
-    } else if (url.match(/\.(mp4|mov|avi)$/i)) {
-      return `https://drive.google.com/file/d/${fileId}/preview`;
-    } else if (url.match(/\.(pdf|docx|doc)$/i)) {
-      return `https://drive.google.com/file/d/${fileId}/preview`;
-    } else {
-      // fallback: open in new tab
-      return `https://drive.google.com/file/d/${fileId}/view`;
-    }
+    // Embed in iframe by default (works for PDF, Docs, Videos)
+    return `https://drive.google.com/file/d/${fileId}/preview`;
   }
 
-  return url; // Return original if not a Drive link
+  return url; // fallback for normal URLs
 }
 
-function createCard({img, url, title, desc, tag}){
+  function createCard({img, url, title, desc, tag}){
   const mediaUrl = normalizeDriveURL(img) || normalizeDriveURL(url);
   let mediaContent = `<img class="thumb" loading="lazy" src="${normalizeDriveURL(img)}" alt="${title || ''}">`;
 
